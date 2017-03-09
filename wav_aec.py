@@ -10,7 +10,7 @@ if len(sys.argv) < 4:
     print('Usage: {} near.wav far.wav out.wav'.format(sys.argv[0]))
     sys.exit(1)
 
-ap = APM(True)   # enable aec
+ap = APM(True, False)   # enable aec
 chunk_ms = 10
 near = wave.open(sys.argv[1], 'rb')
 far = wave.open(sys.argv[2], 'rb')
@@ -29,6 +29,8 @@ ap.set_stream_format(near.getframerate(), near.getnchannels())
 ap.set_reverse_stream_format(far.getframerate(), far.getnchannels())
 ap.set_aec_level(0)
 ap.set_ns_level(0)
+ap.set_system_delay(0)
+# ap.enable_aec3(True)
 
 in_data_len = near.getframerate() * 10 / 1000
 in_data_bytes = in_data_len * near.getsampwidth() * near.getnchannels()

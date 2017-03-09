@@ -17,7 +17,7 @@ using namespace webrtc;
 class AudioProcessingModule
 {
 public:
-    AudioProcessingModule(bool enable_aec=false, bool enable_ns=true);
+    AudioProcessingModule(int aec_type=0, bool enable_ns=true);
 
     string process_stream(const string& stream);
     void process_reverse_stream(const string& data);
@@ -26,7 +26,7 @@ public:
 
     bool has_voice();
 
-    int get_delay();
+    void set_system_delay(int delay);
 
     void set_stream_format(int rate, int channels);
     void set_reverse_stream_format(int rate, int channels);
@@ -44,6 +44,7 @@ private:
     AudioProcessing *ap;
     StreamConfig *stream_config;
     StreamConfig *reverse_stream_config;
+    int system_delay;
     int frame_size_ms;
     float *float_buffer;
     int16_t *int16_buffer;

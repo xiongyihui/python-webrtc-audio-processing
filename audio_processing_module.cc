@@ -5,30 +5,55 @@
 #include "webrtc/modules/audio_processing/include/audio_processing.h"
 #include "webrtc/common_audio/include/audio_util.h"
 #include "webrtc/modules/audio_processing/audio_buffer.h"
-
-#include "webrtc/modules/audio_processing/echo_cancellation_impl.h"
-#include "webrtc/modules/audio_processing/aec/aec_core_internal.h"
+// #include "webrtc/base/logging.h"
 
 #include <iostream>
 #include <string.h>
 
 
-AudioProcessingModule::AudioProcessingModule(bool enable_aec, bool enable_ns)
+AudioProcessingModule::AudioProcessingModule(int aec_type, bool enable_ns)
 {
+    // rtc::LogMessage::LogToDebug(rtc::LS_INFO);
+
+    system_delay = 8;
+
     Config config;
     config.Set<ExperimentalNs>(new ExperimentalNs(false));
     config.Set<Intelligibility>(new Intelligibility(false));
+    config.Set<ExperimentalAgc>(new ExperimentalAgc(false));
+
+    // if (true) {
+    //     std::vector<Point> array_geometry;
+    //     array_geometry.push_back(webrtc::Point(-0.05, 0, 0));
+    //     array_geometry.push_back(webrtc::Point(0.05, 0, 0));
+    //     config.Set<Beamforming>(
+    //         new Beamforming(true,
+    //                         array_geometry,
+    //                         SphericalPointf(DegreesToRadians(90), 0.f, 1.f)));
+    // }
+
 
     ap = AudioProcessing::Create(config);
 
-    Config extraconfig;
-    extraconfig.Set<webrtc::DelayAgnostic>(new webrtc::DelayAgnostic(true));
-    extraconfig.Set<webrtc::ExtendedFilter>(new webrtc::ExtendedFilter(true));
-    extraconfig.Set<webrtc::EchoCanceller3>(new webrtc::EchoCanceller3(true));
-    //extraconfig.Set<RefinedAdaptiveFilter>(new RefinedAdaptiveFilter(true));
-    ap->SetExtraOptions(extraconfig);
+    if (aec_type) {
 
-    if (enable_aec) {
+        if (aec_type == 3) {
+            Config extraconfig;
+            // extraconfig.Set<webrtc::DelayAgnostic>(new webrtc::DelayAgnostic(true));
+            // extraconfig.Set<webrtc::ExtendedFilter>(new webrtc::ExtendedFilter(true));
+            extraconfig.Set<webrtc::EchoCanceller3>(new webrtc::EchoCanceller3(true));
+            // extraconfig.Set<RefinedAdaptiveFilter>(new RefinedAdaptiveFilter(true));
+            ap->SetExtraOptions(extraconfig);
+
+            // AudioProcessing::Config new_config;
+
+            // new_config.echo_canceller3.enabled = true;
+            // new_config.high_pass_filter.enabled = true;
+            // ap->ApplyConfig(new_config);
+
+        }
+
+
         ap->echo_cancellation()->Enable(true);
         ap->echo_cancellation()->set_suppression_level(EchoCancellation::kLowSuppression);
         ap->echo_cancellation()->enable_metrics(true);
@@ -38,10 +63,8 @@ AudioProcessingModule::AudioProcessingModule(bool enable_aec, bool enable_ns)
 
     if (enable_ns) {
         ap->noise_suppression()->Enable(true);
-        ap->noise_suppression()->set_level(static_cast<NoiseSuppression::Level>(1));
+        ap->noise_suppression()->set_level(static_cast<NoiseSuppression::Level>(0));
     }
-
-    // ap->high_pass_filter()->Enable(true);
 
     ap->gain_control()->Enable(true);
     ap->gain_control()->set_mode(GainControl::kAdaptiveDigital);
@@ -72,19 +95,6 @@ AudioProcessingModule::AudioProcessingModule(bool enable_aec, bool enable_ns)
     reverse_stream_buffer = new float[num_frames * channels];
     reverse_channel_buffer = new ChannelBuffer<float>(num_frames, channels);
     out_reverse_channel_buffer = new ChannelBuffer<float>(num_frames, channels);
-
-    // cerr << "aec enabled                 " << ap->echo_cancellation()->is_enabled() << "\n";
-    // if (ap->echo_cancellation()->is_enabled()) {
-    // cerr << "aec 3 enabled               " << ap->echo_cancellation()->aec_core()->aec3_enabled << "\n"
-    //      << "aec extended filter         " << ap->echo_cancellation()->aec_core()->extended_filter_enabled << "\n"
-    //      << "aec delay agnostic          " << ap->echo_cancellation()->aec_core()->delay_agnostic_enabled << "\n"
-    //      << "aec level                   " << ap->echo_cancellation()->suppression_level() << "\n";
-    // }
-    // cerr << "gain control enabled        " << ap->gain_control()->is_enabled() << "\n"
-    //      << "high pass filter_enabled    " << ap->high_pass_filter()->is_enabled() << "\n"
-    //      << "noise suppression enabled   " << ap->noise_suppression()->is_enabled() << "\n"
-    //      << "noise suppression level     " << ap->noise_suppression()->level() << "\n"
-    //      << "voice detection             " << ap->voice_detection()->is_enabled() << endl;
 }
 
 void AudioProcessingModule::set_stream_format(int rate, int channels)
@@ -160,11 +170,17 @@ void AudioProcessingModule::process_reverse_stream(const string& stream)
     S16ToFloat(int16_src, frames * channels, reverse_stream_buffer);
     Deinterleave(reverse_stream_buffer, frames, channels, reverse_channel_buffer->channels());
 
-    ap->set_stream_delay_ms(20);
     ap->ProcessReverseStream(reverse_channel_buffer->channels(),
             *reverse_stream_config,
             *reverse_stream_config,
             out_reverse_channel_buffer->channels());
+
+    ap->set_stream_delay_ms(system_delay);
+}
+
+void AudioProcessingModule::set_system_delay(int delay)
+{
+    system_delay = delay;
 }
 
 bool AudioProcessingModule::has_echo()
@@ -175,11 +191,6 @@ bool AudioProcessingModule::has_echo()
 bool AudioProcessingModule::has_voice()
 {
     return ap->voice_detection()->stream_has_voice();
-}
-
-int AudioProcessingModule::get_delay()
-{
-    return 0;
 }
 
 int AudioProcessingModule::vad_level()
