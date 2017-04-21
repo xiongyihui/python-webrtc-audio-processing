@@ -1,0 +1,3 @@
+[submodule "webrtc-audio-processing"]
+	path = webrtc-audio-processing
+	url = git://anongit.freedesktop.org/pulseaudio/webrtc-audio-processing
