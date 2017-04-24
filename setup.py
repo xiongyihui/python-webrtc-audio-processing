@@ -30,7 +30,7 @@ define_macros = [
     ('WEBRTC_AUDIO_PROCESSING_ONLY_BUILD', None)
 ]
 
-extra_compile_args = []
+extra_compile_args = ['-std=c++11']
 
 ap_sources = []
 ap_dir_prefix = 'webrtc-audio-processing/webrtc/'
