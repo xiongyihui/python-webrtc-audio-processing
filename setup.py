@@ -5,6 +5,7 @@ Python bindings of webrtc audio processing
 """
 
 import sys
+import platform
 from glob import glob
 try:
     from setuptools import setup, Extension
@@ -38,8 +39,19 @@ for i in xrange(8):
     ap_sources += glob(ap_dir_prefix + '*.c*')
     ap_dir_prefix += '*/'
 
-ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('neon.') < 0]
-ap_sources = [src for src in ap_sources if src.find('win.') < 0 and src.find('condition_variable.') < 0 and src.find('rw_lock_generic.') < 0]
+# remove files for windows
+ap_sources.remove('webrtc-audio-processing/webrtc/system_wrappers/source/rw_lock_generic.cc')
+ap_sources.remove('webrtc-audio-processing/webrtc/system_wrappers/source/condition_variable.cc')
+ap_sources = [src for src in ap_sources if src.find('_win.') < 0]
+
+if platform.machine().find('arm') >= 0:
+    ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
+    extra_compile_args.append('-mfloat-abi=hard')
+    extra_compile_args.append('-mfpu=neon')
+    define_macros.append(('WEBRTC_HAS_NEON', None))
+else:
+    ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('neon.') < 0]
+
 
 sources = (
     ap_sources +
