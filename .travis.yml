@@ -1,0 +1,25 @@
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install -qq build-essential python-dev swig
+deploy:
+  true:
+    branch: master
+    tags: true
+  distributions: sdist
+  password:
+    secure: hOU3Ldwi1/QVWeO7HrwZC9yWAPFQ6TGiNt5Ao8Z2T1YbD/VH/KCMb2LHBQ1fLfqMhFqLuZx8nBmeP4Emx5CjmbKFNSHmpd/KvXVv5hEYWVudtQELdXW2UdMkDAtEoWcSfRZe5+JRt+wP+QQWRAbwRkqwrhhZRhv1LVjWkQl5s56eWo7VHXRbPbiayZSfqxQABu0tdYljixvctDVa4fLiINvOcQSq1P7hEi6Qa3JL0vQvTqPR522Z8C18IRMwlzjkeWMvJsSJbGeRS3kNUk5k+HtG3NCYvuupj+4azAJoz4+ey14jLCw+CkkjYKCHrntpkPJvc79wOLNr+VRSmpDNHcDRVIfTHh6JwwnsVpV4jXXs+vhDYLrVCTR3KPlCQ6Onby9Gph9TGDe4lHyAElposoucpQVoW1LbYhJpj2/B6n2mVRtK1eY/dzoS6MS4DM7cCrAQyTZ4GiV+vspvy52pYHyD2hak1vixGr3J9AW2BYVF+RRxq5EO/WHp22xUQ0MlswdxfuVmp0udPINMd6E7oI6fHkEIyZtCc9aIpp/tN55OYIYUn5+FRCoJxX7ss34L4oj3OdQUSgdsgbOHAIepe7MF21Eb6frULUDK7MpRXB9g5R1N2fMxKkksWDRebFKfJ2J0RLn/CYlsspFengPYtBll4N3sdv/BDb9HeM5LnpU=
+  provider: pypi
+  skip_cleanup: true
+  user: yihui
+install:
+- python setup.py build
+- python setup.py bdist_wheel
+- pip install ./dist/webrtc_audio_processing*.whl
+language: python
+python:
+- '2.6'
+- '2.7'
+- '3.4'
+- '3.5'
+- '3.6'
+script: pytest

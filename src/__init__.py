@@ -1,2 +1,4 @@
 
-from webrtc_audio_processing import *
+from .webrtc_audio_processing import AudioProcessingModule
+
+AP = AudioProcessingModule

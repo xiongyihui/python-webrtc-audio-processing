@@ -1,0 +1,7 @@
+include README.md
+
+exclude .gitignore .gitmodules
+
+recursive-include webrtc-audio-processing *.c *.cc *.h
+
+recursive-exclude Makefile

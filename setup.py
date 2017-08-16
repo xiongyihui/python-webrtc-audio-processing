@@ -35,7 +35,7 @@ extra_compile_args = ['-std=c++11']
 
 ap_sources = []
 ap_dir_prefix = 'webrtc-audio-processing/webrtc/'
-for i in xrange(8):
+for i in range(8):
     ap_sources += glob(ap_dir_prefix + '*.c*')
     ap_dir_prefix += '*/'
 
