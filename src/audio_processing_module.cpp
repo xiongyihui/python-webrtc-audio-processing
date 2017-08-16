@@ -9,7 +9,7 @@
 #include <string.h>
 
 
-AudioProcessingModule::AudioProcessingModule(int aec_type, bool enable_ns, int agc_type)
+AudioProcessingModule::AudioProcessingModule(int aec_type, bool enable_ns, int agc_type, bool enable_vad)
 {
     system_delay = 0;
 
@@ -61,10 +61,11 @@ AudioProcessingModule::AudioProcessingModule(int aec_type, bool enable_ns, int a
         }
     }
 
-    ap->voice_detection()->Enable(true);
-    ap->voice_detection()->set_likelihood(VoiceDetection::kVeryLowLikelihood);
-    ap->voice_detection()->set_frame_size_ms(frame_size_ms);
-
+    if (enable_vad) {
+        ap->voice_detection()->Enable(true);
+        ap->voice_detection()->set_likelihood(VoiceDetection::kVeryLowLikelihood);
+        ap->voice_detection()->set_frame_size_ms(frame_size_ms);
+    }
 
     nearend_config = new StreamConfig(default_rate, default_channels, false);
     nearend_filtered_config = new StreamConfig(default_rate, default_channels, false);

@@ -17,7 +17,7 @@ using namespace webrtc;
 class AudioProcessingModule
 {
 public:
-    AudioProcessingModule(int aec_type=0, bool enable_ns=false, int agc_type=0);
+    AudioProcessingModule(int aec_type=0, bool enable_ns=false, int agc_type=0, bool enable_vad=false);
 
     string process_stream(const string& stream);
     void process_reverse_stream(const string& data);
