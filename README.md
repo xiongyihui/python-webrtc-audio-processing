@@ -1,5 +1,10 @@
 # WebRTC Audio Processing for Python
 
+[![](https://img.shields.io/pypi/v/webrtc_audio_processing.svg)](https://pypi.python.org/pypi/webrtc_audio_processing)
+[![](https://img.shields.io/travis/xiongyihui/webrtc_audio_processing.svg)](https://travis-ci.org/xiongyihui/webrtc_audio_processing)
+
+Python binding of WebRTC Audio Processing.
+
 ## Requirements
 + swig
 + compile toolchain
