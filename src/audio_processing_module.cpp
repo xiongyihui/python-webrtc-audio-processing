@@ -53,11 +53,15 @@ AudioProcessingModule::AudioProcessingModule(int aec_type, bool enable_ns, int a
     if (agc_type) {
         ap->gain_control()->Enable(true);
         if (agc_type == 1) {
+            // Adaptive Digital AGC
             ap->gain_control()->set_mode(GainControl::kAdaptiveDigital);
+            ap->gain_control()->set_target_level_dbfs(30);
         } else {
+            // Adaptive Analog AGC
             ap->gain_control()->set_mode(webrtc::GainControl::kAdaptiveAnalog);
             ap->gain_control()->set_analog_level_limits(0, 100);
-            ap->gain_control()->set_target_level_dbfs(0);
+            ap->gain_control()->set_target_level_dbfs(30);
+            ap->gain_control()->set_compression_gain_db(0);
         }
     }
 
@@ -198,6 +202,19 @@ void AudioProcessingModule::set_agc_level(int level)
         return;
     }
     ap->gain_control()->set_stream_analog_level(level);
+}
+
+void AudioProcessingModule::set_agc_target(int dbfs)
+{
+    if (dbfs < 0) {
+        dbfs = -dbfs;
+    }
+
+    if (dbfs > 31) {
+        dbfs = 31;
+    }
+
+    ap->gain_control()->set_target_level_dbfs(dbfs);
 }
 
 int AudioProcessingModule::ns_level()

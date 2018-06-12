@@ -66,7 +66,7 @@ swig_opts = (
 
 setup(
     name='webrtc_audio_processing',
-    version='0.1.0',
+    version='0.1.1',
     description='Python bindings of webrtc audio processing',
     long_description=__doc__,
     author='Yihui Xiong',

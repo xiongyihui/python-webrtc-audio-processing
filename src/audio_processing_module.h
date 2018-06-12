@@ -43,6 +43,12 @@ public:
     void set_agc_level(int level);
     int agc_level();
 
+    // Sets the target peak |level| (or envelope) of the AGC in dBFs (decibels
+    // from digital full-scale). The convention is to use positive values. For
+    // instance, passing in a value of -3 corresponds to -3 dBFs, or a target
+    // level 3 dB below full-scale. Limited to [-31, 0].
+    void set_agc_target(int dbfs);
+
     ~AudioProcessingModule();
 
 private:
