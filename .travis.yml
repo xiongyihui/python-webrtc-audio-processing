@@ -4,13 +4,14 @@ before_install:
 - sudo apt-get install -qq build-essential python-dev swig
 deploy:
   true:
+    python: 2.7
     branch: master
     tags: true
   distributions: sdist
   password:
     secure: V2jeEN5mj2kReyyzSE4krixN0bewhIT4VcmEQuDrIobXyeZuqbgn/8Dz91XbkGlRSqdh7ux8TACDxK2AVtu7xnrOPsVKoXnvPvYM6G6Ha+6sBYc6lFjsNR1KRTGIfSLRw00ACMsLkgHS1rZPaQHPJB256dp50iibM+AmXQv3LjbpGHQmI+N/gIw9jzKXxDDmPtjm5pSrS1z9kUazus+I0MIZcYQbJ0QGgBUud1VDRAUfv5y2nPIipYP1onnUUBTXhXIbtuvplmpQynM2EtSSv5Hv0ZI+EWWaFq7Y817h/Ag8evw4zh8GFWA4xkTE4wwj8eoiNuUoWYZRlrHv2BAbgqeFSNwSdAtCAd1FAIqaxI55bCoGj/y+p8jzFEi2ieIvNulTHZ9hVx2mao0CJJ4UWzqRoeIcQXYoY9c/qoYB7Bh8UqIoLwWYe1oAD4mwXgYaSkRcX9PqymeGRoRhR3r5RzYDFd+UQZRYasnjzcJm0Oytj4fi72JYzk1fZP6FlNZEd7TUx0SpCiziO0t+i+65lgBTbWvV1h8YjmR+I2Hp9okRX7P0CKlPhThALGOyGtgTiuxHSLnvYAfjC7FuUIS4E0MBkbHH8HLnBYjxc8ikzM82NcgWyeO7+M0kjk8uEiLQIkL4gZ+r09x91ONCq3GICN2GdG0LOJ6BXUeh2oU2OBU=
   provider: pypi
-  skip_cleanup: true
+  skip_cleanup: false
   user: yihui
 install:
 - python setup.py build
