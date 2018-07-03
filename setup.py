@@ -4,33 +4,23 @@
 Python bindings of webrtc audio processing
 """
 
-import sys
-import platform
 from glob import glob
-try:
-    from setuptools import setup, Extension
-    from distutils.command.build import build
-    from setuptools.command.install import install
-except ImportError:
-    from distutils.core import setup
-    from distutils.extension import Extension
-    from distutils.command.build import build
-    from distutils.command.install import install
+import platform
+import sys
+from setuptools import setup, Extension
 
-PY2 = sys.version_info[0] == 2
 
+with open('README.md') as f:
+    long_description = f.read()
 
 include_dirs = ['src', 'webrtc-audio-processing']
-
 libraries = ['pthread', 'stdc++']
-
 define_macros = [
     ('WEBRTC_LINUX', None),
     ('WEBRTC_POSIX', None),
     ('WEBRTC_NS_FLOAT', None),
     ('WEBRTC_AUDIO_PROCESSING_ONLY_BUILD', None)
 ]
-
 extra_compile_args = ['-std=c++11']
 
 ap_sources = []
@@ -66,13 +56,12 @@ swig_opts = (
 
 setup(
     name='webrtc_audio_processing',
-    version='0.1.1',
+    version='0.1.2',
     description='Python bindings of webrtc audio processing',
-    long_description=__doc__,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Yihui Xiong',
     author_email='yihui.xiong@hotmail.com',
-    maintainer='Yihui Xiong',
-    maintainer_email='yihui.xiong@hotmail.com',
     url='https://github.com/xiongyihui/python-webrtc-audio-processing',
     download_url='https://pypi.python.org/pypi/webrtc_audio_processing',
     packages=['webrtc_audio_processing'],
