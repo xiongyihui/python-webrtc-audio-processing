@@ -39,6 +39,10 @@ if platform.machine().find('arm') >= 0:
     extra_compile_args.append('-mfloat-abi=hard')
     extra_compile_args.append('-mfpu=neon')
     define_macros.append(('WEBRTC_HAS_NEON', None))
+elif platform.machine().find('aarch64') >= 0:
+    ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
+    define_macros.append(('WEBRTC_ARCH_ARM64', None))
+    define_macros.append(('WEBRTC_HAS_NEON', None))
 else:
     ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('neon.') < 0]
 
