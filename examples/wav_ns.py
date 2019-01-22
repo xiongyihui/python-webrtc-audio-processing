@@ -19,7 +19,9 @@ out.setsampwidth(width)
 out.setframerate(rate)
 
 ap = AP(enable_ns=True)
-ap.set_stream_format(rate, channels)
+
+# set input/output stream format
+ap.set_stream_format(rate, channels, rate, channels)
 
 frames_size = int(rate * 10 / 1000)         # only support processing 10ms audio each time 
 frames_bytes = frames_size * width * channels
