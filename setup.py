@@ -124,5 +124,8 @@ setup(
     platforms=['Linux'],
     package_dir={
         'webrtc_audio_processing': 'src'
+    },
+    package_data={
+        'webrtc_audio_processing': ['webrtc_audio_processing.py']
     }
 )
