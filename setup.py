@@ -8,6 +8,7 @@ from glob import glob
 import platform
 import sys
 from setuptools import setup, Extension
+import os
 
 
 with open('README.md') as f:
@@ -34,17 +35,41 @@ ap_sources.remove('webrtc-audio-processing/webrtc/system_wrappers/source/rw_lock
 ap_sources.remove('webrtc-audio-processing/webrtc/system_wrappers/source/condition_variable.cc')
 ap_sources = [src for src in ap_sources if src.find('_win.') < 0]
 
-if platform.machine().find('arm') >= 0:
-    ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
-    extra_compile_args.append('-mfloat-abi=hard')
-    extra_compile_args.append('-mfpu=neon')
-    define_macros.append(('WEBRTC_HAS_NEON', None))
-elif platform.machine().find('aarch64') >= 0:
-    ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
-    define_macros.append(('WEBRTC_ARCH_ARM64', None))
-    define_macros.append(('WEBRTC_HAS_NEON', None))
+def get_yocto_var(var_name):
+    val = os.environ.get(var_name, None)
+    if val is None:
+        raise Exception(f'Bitbake build detected, i.e. BB_CURRENT_TASK is set, but {var_name} is not set. Please do export {var_name} in your bitbake recipe.')
+    return val
+
+
+def process_arch(arch, set_compile_flags=False):
+    global ap_sources, define_macros
+    if arch.find('arm') >= 0:
+        ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
+        define_macros.append(('WEBRTC_HAS_NEON', None))
+        if set_compile_flags:
+            extra_compile_args.append('-mfloat-abi=hard')
+            extra_compile_args.append('-mfpu=neon')
+    elif arch.find('aarch64') >= 0:
+        ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
+        define_macros.append(('WEBRTC_HAS_NEON', None))
+        define_macros.append(('WEBRTC_ARCH_ARM64', None))
+    elif arch.find('x86') >= 0:
+        ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('neon.') < 0]
+    elif arch.find('mips') >= 0:
+        ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('neon.') < 0]
+    else:
+        raise Exception('Unsupported arch: %s' % arch)
+
+if 'BITBAKE_BUILD' in os.environ:
+    print('Building with bitbake build system')
+    cc_args = get_yocto_var('TARGET_CC_ARCH')
+    extra_compile_args += cc_args.split()
+
+    target_sys = get_yocto_var('TARGET_SYS')
+    process_arch(target_sys)
 else:
-    ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('neon.') < 0]
+    process_arch(platform.machine(), set_compile_flags=True)
 
 
 sources = (
