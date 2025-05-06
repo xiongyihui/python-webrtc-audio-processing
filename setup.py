@@ -47,9 +47,16 @@ def process_arch(arch, set_compile_flags=False):
     if arch.find('arm') >= 0:
         ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
         define_macros.append(('WEBRTC_HAS_NEON', None))
-        if set_compile_flags:
-            extra_compile_args.append('-mfloat-abi=hard')
-            extra_compile_args.append('-mfpu=neon')
+        if arch.find('arm64') >= 0:
+            define_macros.remove(('WEBRTC_LINUX', None))
+            define_macros.append(('WEBRTC_MAC', None))
+            define_macros.append(('WEBRTC_ARCH_ARM64', None))
+            define_macros.append(('WEBRTC_CLOCK_TYPE_REALTIME', None))
+            extra_compile_args.clear()
+        else:
+            if set_compile_flags:
+                extra_compile_args.append('-mfloat-abi=hard')
+                extra_compile_args.append('-mfpu=neon')
     elif arch.find('aarch64') >= 0:
         ap_sources = [src for src in ap_sources if src.find('mips.') < 0 and src.find('sse') < 0]
         define_macros.append(('WEBRTC_HAS_NEON', None))
@@ -71,7 +78,6 @@ if 'BITBAKE_BUILD' in os.environ:
 else:
     process_arch(platform.machine(), set_compile_flags=True)
 
-
 sources = (
     ap_sources +
     ['src/audio_processing_module.cpp', 'src/webrtc_audio_processing.i']
@@ -81,6 +87,7 @@ swig_opts = (
     ['-c++'] +
     ['-I' + h for h in include_dirs]
 )
+
 
 
 setup(
