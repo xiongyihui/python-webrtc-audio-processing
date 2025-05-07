@@ -10,7 +10,6 @@ import sys
 from setuptools import setup, Extension
 import os
 
-
 with open('README.md') as f:
     long_description = f.read()
 
@@ -30,17 +29,20 @@ for i in range(8):
     ap_sources += glob(ap_dir_prefix + '*.c*')
     ap_dir_prefix += '*/'
 
-# remove files for windows
-ap_sources.remove('webrtc-audio-processing/webrtc/system_wrappers/source/rw_lock_generic.cc')
-ap_sources.remove('webrtc-audio-processing/webrtc/system_wrappers/source/condition_variable.cc')
-ap_sources = [src for src in ap_sources if src.find('_win.') < 0]
+rw_lock_generic_path = os.path.join('webrtc-audio-processing', 'webrtc', 'system_wrappers', 'source', 'rw_lock_generic.cc')
+condition_variable_path = os.path.join('webrtc-audio-processing', 'webrtc', 'system_wrappers', 'source', 'condition_variable.cc')
+
+if rw_lock_generic_path in ap_sources:
+    ap_sources.remove(rw_lock_generic_path)
+
+if condition_variable_path in ap_sources:
+    ap_sources.remove(condition_variable_path)
 
 def get_yocto_var(var_name):
     val = os.environ.get(var_name, None)
     if val is None:
         raise Exception(f'Bitbake build detected, i.e. BB_CURRENT_TASK is set, but {var_name} is not set. Please do export {var_name} in your bitbake recipe.')
     return val
-
 
 def process_arch(arch, set_compile_flags=False):
     global ap_sources, define_macros
@@ -87,8 +89,6 @@ swig_opts = (
     ['-c++'] +
     ['-I' + h for h in include_dirs]
 )
-
-
 
 setup(
     name='webrtc_audio_processing',
